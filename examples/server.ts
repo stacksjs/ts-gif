@@ -92,8 +92,8 @@ function gen_block256() {
   gf.addFrame(0, 0, width, 1, stream, { transparent: 0 })
   const data = buf.slice(0, gf.end())
   // Make sure it decodes.
-  const gr = new gif.Reader(data)
-  const fi0 = gr.frameInfo(0)
+  // const gr = new gif.Reader(data)
+  // const fi0 = gr.frameInfo(0)
   /*
   console.log(fi0);
   console.log(buf.slice(fi0.data_offset, fi0.data_offset + fi0.data_length));

@@ -51,11 +51,13 @@ export class Reader {
               // Try if it's a Netscape block (with animation loop counter).
               if (buf[p] !== 0x0B // 21 FF already read, check block size.
                 // NETSCAPE2.0
+                // eslint-disable-next-line style/no-mixed-operators
                 || buf[p + 1] === 0x4E && buf[p + 2] === 0x45 && buf[p + 3] === 0x54
                 && buf[p + 4] === 0x53 && buf[p + 5] === 0x43 && buf[p + 6] === 0x41
                 && buf[p + 7] === 0x50 && buf[p + 8] === 0x45 && buf[p + 9] === 0x32
                 && buf[p + 10] === 0x2E && buf[p + 11] === 0x30
                 // Sub-block
+                // eslint-disable-next-line style/no-mixed-operators
                 && buf[p + 12] === 0x03 && buf[p + 13] === 0x01 && buf[p + 16] === 0) {
                 p += 14
                 this.loop_count = buf[p++] | buf[p++] << 8
