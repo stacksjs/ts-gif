@@ -6,32 +6,55 @@
 <!-- [![npm downloads][npm-downloads-src]][npm-downloads-href] -->
 <!-- [![Codecov][codecov-src]][codecov-href] -->
 
-# ts-ndarray
+# ts-gif
 
-> A TypeScript library for working with n-dimensional arrays.
+> A TypeScript library for reading, writing, and manipulating GIF images
 
 ## Features
 
-- **N-dimensional**: Create and manipulate n-dimensional arrays.
-- **Multilinear** Bilinear and trilinear interpolation for ndarrays.
-- **Images** Utilities to read an image into an ndarray.
-- **Simple**: A simple API for working with n-dimensional arrays.
-- **Fast**: Built with performance in mind.
-- **Typed**: Written in TypeScript.
+- 🎨 **Complete GIF Support**: Full support for GIF87a and GIF89a specifications
+- 🖼️ **Frame Management**: Create and manipulate multi-frame animated GIFs
+- 🎯 **Precise Control**: Fine-grained control over frame delays, disposal methods, and transparency
+- 🌈 **Color Tables**: Support for both global and local color palettes
+- 🔄 **Animation**: Full control over animation loops and timing
+- 💪 **Typed**: Written in TypeScript with full type safety
+- ⚡ **Efficient**: Optimized for performance with minimal memory footprint
+- 🧰 **Simple API**: Easy-to-use interface for both basic and advanced GIF operations
 
 ## Get Started
 
 ### Installation
 
 ```bash
-npm install ts-ndarray
-# bun i ts-ndarray
+npm install ts-gif
+# bun i ts-gif
 ```
 
 ### Usage
 
 ```ts
-import { NdArray } from 'ts-ndarray'
+import { Reader, Writer } from 'ts-gif'
+
+// Reading a GIF
+const reader = new Reader(buffer)
+console.log(`Dimensions: ${reader.width}x${reader.height}`)
+console.log(`Number of frames: ${reader.numFrames()}`)
+
+// Writing a GIF
+const writer = new Writer(buffer, width, height, {
+  palette: globalPalette,
+  loop: 0 // 0 = loop forever
+})
+
+// Add frames
+writer.addFrame(0, 0, width, height, pixelData, {
+  delay: 100, // 100ms delay
+  disposal: 2, // Clear frame before next
+  transparent: null
+})
+
+// Finalize the GIF
+writer.end()
 ```
 
 ## Testing
@@ -42,7 +65,7 @@ bun test
 
 ## Changelog
 
-Please see our [releases](https://github.com/stackjs/ts-ndarray/releases) page for more information on what has changed recently.
+Please see our [releases](https://github.com/stackjs/ts-gif/releases) page for more information on what has changed recently.
 
 ## Contributing
 
@@ -66,7 +89,7 @@ Our address: Stacks.js, 12665 Village Ln #2306, Playa Vista, CA 90094, United St
 
 ## Credits
 
-- Thanks to [Mikola Lysenko](https://github.com/mikolalysenko) for the original [`ndarray`](https://github.com/scijs/ndarray) library, [`ndarray-linear-interpolate`](https://github.com/scijs/ndarray-linear-interpolate), [`ndarray-pack`](https://github.com/scijs/ndarray-pack), and [`get-pixels`](https://github.com/scijs/get-pixels).
+Thanks to [Dean McNamee](https://github.com/deanm) for the original [`omggif`](https://github.com/deanm/omggif) library.
 
 ## Sponsors
 
@@ -82,8 +105,8 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 Made with 💙
 
 <!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/ts-ndarray?style=flat-square
-[npm-version-href]: https://npmjs.com/package/ts-ndarray
+[npm-version-src]: https://img.shields.io/npm/v/ts-gif?style=flat-square
+[npm-version-href]: https://npmjs.com/package/ts-gif
 [github-actions-src]: https://img.shields.io/github/actions/workflow/status/stacksjs/ts-starter/ci.yml?style=flat-square&branch=main
 [github-actions-href]: https://github.com/stacksjs/ts-starter/actions?query=workflow%3Aci
 
