@@ -1,19 +1,28 @@
 {
-  "name": "ts-ndarray",
+  "name": "ts-gif",
   "type": "module",
   "version": "0.1.1",
-  "description": "Multidimensional arrays for JavaScript & TypeScript.",
+  "description": "TypeScript implementation of a performant GIF encoder & decoder.",
   "author": "Chris Breuer <chris@stacksjs.org>",
   "license": "MIT",
-  "homepage": "https://github.com/stacksjs/ts-ndarray#readme",
+  "homepage": "https://github.com/stacksjs/ts-gif#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stacksjs/ts-ndarray.git"
+    "url": "git+https://github.com/stacksjs/ts-gif.git"
   },
   "bugs": {
-    "url": "https://github.com/stacksjs/ts-ndarray/issues"
+    "url": "https://github.com/stacksjs/ts-gif/issues"
   },
-  "keywords": ["typescript", "ts-ndarray", "library", "arrays", "multidimensional"],
+  "keywords": [
+    "gif",
+    "gif89a",
+    "gif87a",
+    "encoder",
+    "decoder",
+    "typescript",
+    "ts-gif",
+    "library"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -27,12 +36,12 @@
   "types": "./dist/index.d.ts",
   "files": ["README.md", "dist"],
   "scripts": {
-    "build": "bun --bun build.ts && bun run compile",
+    "build": "bun --bun build.ts",
     "lint": "bunx --bun eslint .",
     "lint:fix": "bunx --bun eslint . --fix",
     "fresh": "bunx rimraf node_modules/ bun.lock && bun i",
     "changelog": "bunx changelogen --output CHANGELOG.md",
-    "prepublishOnly": "bun --bun run build && bun run compile:all",
+    "prepublishOnly": "bun --bun run build",
     "release": "bun run changelog && bunx bumpp package.json --all",
     "test": "bun test",
     "dev:docs": "bun --bun vitepress dev docs",
