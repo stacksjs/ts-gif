@@ -1,7 +1,7 @@
 {
   "name": "ts-ndarray",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Multidimensional arrays for JavaScript & TypeScript.",
   "author": "Chris Breuer <chris@stacksjs.org>",
   "license": "MIT",
@@ -40,6 +40,9 @@
     "preview:docs": "bun --bun vitepress preview docs",
     "typecheck": "bun --bun tsc --noEmit"
   },
+  "dependencies": {
+    "data-uri-to-buffer": "^6.0.2"
+  },
   "devDependencies": {
     "@iconify-json/carbon": "^1.2.6",
     "@shikijs/vitepress-twoslash": "^2.3.2",
@@ -66,8 +69,5 @@
   },
   "lint-staged": {
     "*.{js,ts}": "bunx --bun eslint . --fix"
-  },
-  "dependencies": {
-    "data-uri-to-buffer": "^6.0.2"
   }
 }
