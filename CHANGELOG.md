@@ -1,4 +1,16 @@
 
+## v0.1.1...main
+
+[compare changes](https://github.com/stacksjs/ts-gif/compare/v0.1.1...main)
+
+### 🏡 Chore
+
+- Minor adjustments ([1d83f30](https://github.com/stacksjs/ts-gif/commit/1d83f30))
+
+### ❤️ Contributors
+
+- Chris ([@chrisbbreuer](http://github.com/chrisbbreuer))
+
 ## ...main
 
 
