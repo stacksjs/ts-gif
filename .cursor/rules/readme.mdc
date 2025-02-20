@@ -1,0 +1,56 @@
+---
+description: General information based on the latest ./README.md content
+globs: 
+---
+Update it if APIs change:
+
+# ts-gif
+
+> A TypeScript library for reading, writing, and manipulating GIF images
+
+## Features
+
+- 🎨 **Complete GIF Support**: Full support for GIF87a and GIF89a specifications
+- 🖼️ **Frame Management**: Create and manipulate multi-frame animated GIFs
+- 🎯 **Precise Control**: Fine-grained control over frame delays, disposal methods, and transparency
+- 🌈 **Color Tables**: Support for both global and local color palettes
+- 🔄 **Animation**: Full control over animation loops and timing
+- 💪 **Typed**: Written in TypeScript with full type safety
+- ⚡ **Efficient**: Optimized for performance with minimal memory footprint
+- 🧰 **Simple API**: Easy-to-use interface for both basic and advanced GIF operations
+
+## Get Started
+
+### Installation
+
+```bash
+npm install ts-gif
+# bun i ts-gif
+```
+
+### Usage
+
+```ts
+import { Reader, Writer } from 'ts-gif'
+
+// Reading a GIF
+const reader = new Reader(buffer)
+console.log(`Dimensions: ${reader.width}x${reader.height}`)
+console.log(`Number of frames: ${reader.numFrames()}`)
+
+// Writing a GIF
+const writer = new Writer(buffer, width, height, {
+  palette: globalPalette,
+  loop: 0 // 0 = loop forever
+})
+
+// Add frames
+writer.addFrame(0, 0, width, height, pixelData, {
+  delay: 100, // 100ms delay
+  disposal: 2, // Clear frame before next
+  transparent: null
+})
+
+// Finalize the GIF
+writer.end()
+```
