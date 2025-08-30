@@ -55,11 +55,11 @@
     "data-uri-to-buffer": "^6.0.2"
   },
   "devDependencies": {
-    "@stacksjs/bumpx": "^0.1.33",
+    "@stacksjs/bumpx": "^0.1.38",
     "@stacksjs/docs": "^0.69.3",
     "@stacksjs/eslint-config": "^3.15.1-beta.4",
     "@stacksjs/gitlint": "^0.1.5",
-    "@stacksjs/logsmith": "^0.1.14",
+    "@stacksjs/logsmith": "^0.1.15",
     "@types/bun": "^1.2.21",
     "@types/cwise-compiler": "^1.1.6",
     "buddy-bot": "^0.8.10",
