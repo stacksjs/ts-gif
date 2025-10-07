@@ -64,7 +64,7 @@
     "@types/bun": "^1.2.23",
     "@types/cwise-compiler": "^1.1.6",
     "buddy-bot": "^0.9.7",
-    "bun-git-hooks": "^0.2.19",
+    "bun-git-hooks": "^0.3.1",
     "bun-plugin-dtsx": "^0.21.12",
     "bunfig": "^0.15.0",
     "cwise-compiler": "^1.1.3",
