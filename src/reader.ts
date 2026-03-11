@@ -456,6 +456,7 @@ export function readerLZWOutputIndexStream(code_stream: Buffer, p: number, outpu
     output[op++] = k
 
     op += chase_length
+    // eslint-disable-next-line pickier/no-unused-vars
     let b = op // Track pointer, writing backwards.
 
     if (chase_code !== code) // The case of emitting {CODE-1} + k.

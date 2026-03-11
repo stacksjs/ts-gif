@@ -13,7 +13,6 @@
 
 ## ...main
 
-
 ### 🏡 Chore
 
 - Initial commit ([43cd6de](https://github.com/stacksjs/ts-ndarray/commit/43cd6de))
