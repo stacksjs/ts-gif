@@ -9,13 +9,13 @@ const buf = Buffer.alloc(1024 * 1024)
 
 function gen_static_global() {
   const gf = new gif.Writer(buf, 2, 2, { palette: [0xFF0000, 0x0000FF] })
-  gf.addFrame(0, 0, 2, 2, [0, 1, 1, 0])
+  gf.addFrame(0, 0, 2, 2, new Uint8Array([0, 1, 1, 0]))
   return buf.slice(0, gf.end())
 }
 
 function gen_static_local() {
   const gf = new gif.Writer(buf, 2, 2)
-  gf.addFrame(0, 0, 2, 2, [0, 1, 1, 0], { palette: [0xFF0000, 0x0000FF] })
+  gf.addFrame(0, 0, 2, 2, new Uint8Array([0, 1, 1, 0]), { palette: [0xFF0000, 0x0000FF] })
   return buf.slice(0, gf.end())
 }
 
@@ -24,8 +24,8 @@ function gen_anim() {
   // A value of 1 will play twice (first time, and then one loop time).
   // To play only once do not specify loop or pass null.
   const gf = new gif.Writer(buf, 2, 2, { loop: 1 })
-  gf.addFrame(0, 0, 2, 2, [0, 1, 1, 0], { palette: [0xFF0000, 0x0000FF] })
-  gf.addFrame(0, 0, 2, 2, [1, 0, 0, 1], {
+  gf.addFrame(0, 0, 2, 2, new Uint8Array([0, 1, 1, 0]), { palette: [0xFF0000, 0x0000FF] })
+  gf.addFrame(0, 0, 2, 2, new Uint8Array([1, 0, 0, 1]), {
     palette: [0xFF0000, 0x0000FF],
     delay: 10,
   }) // Delay in hundredths of a sec (100 = 1s).
@@ -40,7 +40,7 @@ function gen_gray_strip() {
     palette.push(i << 16 | i << 8 | i)
     indices.push(i)
   }
-  gf.addFrame(0, 0, 256, 1, indices, { palette })
+  gf.addFrame(0, 0, 256, 1, new Uint8Array(indices), { palette })
   return buf.slice(0, gf.end())
 }
 
@@ -60,7 +60,7 @@ function gen_color_strip() {
     const palette = []
     for (let i = 0; i < 256; ++i)
       palette.push(j << 16 | i << 8 | i)
-    gf.addFrame(0, j, 256, 1, indices, { palette, disposal: 1 })
+    gf.addFrame(0, j, 256, 1, new Uint8Array(indices), { palette, disposal: 1 })
   }
   return buf.slice(0, gf.end())
 }
@@ -69,14 +69,14 @@ function gen_color_strip() {
 // reason that I'm not sure of they set their background index to 255.
 function gen_empty_white() {
   const gf = new gif.Writer(buf, 1, 1, { palette: [0xFFFFFF, 0x000000] })
-  gf.addFrame(0, 0, 1, 1, [0])
+  gf.addFrame(0, 0, 1, 1, new Uint8Array([0]))
   return buf.slice(0, gf.end())
 }
 
 // 1x1 transparent 43 bytes.
 function gen_empty_trans() {
   const gf = new gif.Writer(buf, 1, 1, { palette: [0x000000, 0x000000] })
-  gf.addFrame(0, 0, 1, 1, [0], { transparent: 0 })
+  gf.addFrame(0, 0, 1, 1, new Uint8Array([0]), { transparent: 0 })
   return buf.slice(0, gf.end())
 }
 
@@ -87,7 +87,7 @@ function gen_block256() {
   const gf = new gif.Writer(buf, width, 1, {
     palette: [0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000],
   })
-  const stream = Array.from({ length: width })
+  const stream = new Uint8Array(width)
   for (let i = 0; i < width; ++i) stream[i] = i & 0x7
   gf.addFrame(0, 0, width, 1, stream, { transparent: 0 })
   const data = buf.slice(0, gf.end())
