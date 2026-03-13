@@ -2,7 +2,7 @@
 
 ## About
 
-TypeScript implementation of a performant GIF encoder & decoder.
+A TypeScript library for reading, writing, and manipulating GIF images, with full support for both GIF87a and GIF89a specifications. It provides a `Reader` for decoding multi-frame animated GIFs and a `Writer` for encoding them, with fine-grained control over frame delays, disposal methods, transparency, and both global and local color palettes. The library is optimized for performance with minimal memory footprint and zero dependencies.
 
 ## Linting
 
