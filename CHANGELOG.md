@@ -24,7 +24,7 @@
 
 - Chris ([@chrisbbreuer](http://github.com/chrisbbreuer))
 
-## ...main
+## ...initial
 
 ### 🏡 Chore
 
