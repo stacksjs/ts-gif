@@ -57,7 +57,7 @@
     "format:fix": "bunx --bun pickier . --format --write"
   },
   "dependencies": {
-    "data-uri-to-buffer": "^6.0.2"
+    "data-uri-to-buffer": "^7.0.0"
   },
   "devDependencies": {
     "@stacksjs/docs": "^0.70.23",
