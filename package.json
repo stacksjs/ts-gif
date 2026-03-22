@@ -65,9 +65,6 @@
     "typescript": "^5.9.3",
     "better-dx": "^0.2.7"
   },
-  "overrides": {
-    "unconfig": "0.6.0"
-  },
   "git-hooks": {
     "pre-commit": {
       "staged-lint": {
