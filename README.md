@@ -1,10 +1,10 @@
 <p align="center"><img src=".github/art/cover.jpg" alt="Social Card of this repo"></p>
 
 [![npm version](https://img.shields.io/npm/v/ts-gif?style=flat-square)](https://npmjs.com/package/ts-gif)
-[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/stacksjs/ts-starter/ci.yml?style=flat-square&branch=main)](https://github.com/stacksjs/ts-starter/actions?query=workflow%3Aci)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/stacksjs/ts-gif/ci.yml?style=flat-square&branch=main)](https://github.com/stacksjs/ts-gif/actions?query=workflow%3Aci)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 <!-- [![npm downloads][npm-downloads-src]][npm-downloads-href] -->
-<!-- [![Codecov][codecov-src]](https://codecov.io/gh/stacksjs/ts-starter -->) -->
+<!-- [![Codecov][codecov-src]](https://codecov.io/gh/stacksjs/ts-gif -->) -->
 
 # ts-gif
 
@@ -75,7 +75,7 @@ Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 
 For help, discussion about best practices, or any other conversation that would benefit from being searchable:
 
-[Discussions on GitHub](https://github.com/stacksjs/ts-starter/discussions)
+[Discussions on GitHub](https://github.com/stacksjs/ts-gif/discussions)
 
 For casual chit-chat with others using this package:
 
@@ -106,4 +106,4 @@ Made with 💙
 
 <!-- Badges -->
 
-<!-- [codecov-src]: https://img.shields.io/codecov/c/gh/stacksjs/ts-starter/main?style=flat-square
+<!-- [codecov-src]: https://img.shields.io/codecov/c/gh/stacksjs/ts-gif/main?style=flat-square

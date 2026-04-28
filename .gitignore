@@ -8,6 +8,7 @@ dist
 lib-cov
 logs
 node_modules
+pantry
 temp
 docs/.vitepress/cache
 .zed
