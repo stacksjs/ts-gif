@@ -1,6 +1,6 @@
-import type { BunpressConfig } from 'bunpress'
+import type { BunPressConfig } from '@stacksjs/bunpress'
 
-const config: BunpressConfig = {
+const config: BunPressConfig = {
   name: 'ts-gif',
   description: 'A performant TypeScript implementation for reading, writing, and manipulating GIF images',
   url: 'https://ts-gif.netlify.app',
