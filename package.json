@@ -60,7 +60,7 @@
     "format:fix": "bunx --bun pickier . --format --write"
   },
   "dependencies": {
-    "data-uri-to-buffer": "^6.0.2"
+    "data-uri-to-buffer": "^8.0.0"
   },
   "devDependencies": {
     "@types/cwise-compiler": "^1.1.6",
