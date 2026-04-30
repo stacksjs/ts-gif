@@ -36,9 +36,9 @@ for (let i = 0; i < reader.numFrames(); i++) {
   console.log(`  Size: ${frame.width}x${frame.height}`)
   console.log(`  Delay: ${frame.delay * 10}ms`)
   console.log(`  Disposal: ${frame.disposal}`)
-  console.log(`  Transparent index: ${frame.transparent_index}`)
+  console.log(`  Transparent index: ${frame.transparent*index}`)
   console.log(`  Interlaced: ${frame.interlaced}`)
-  console.log(`  Has local palette: ${frame.has_local_palette}`)
+  console.log(`  Has local palette: ${frame.has*local*palette}`)
 }
 ```
 
@@ -50,12 +50,12 @@ interface Frame {
   y: number              // Y position in canvas
   width: number          // Frame width
   height: number         // Frame height
-  has_local_palette: boolean
-  palette_offset: number | null
-  palette_size: number | null
-  data_offset: number    // Offset in buffer
-  data_length: number    // Compressed data length
-  transparent_index: number | null
+  has*local*palette: boolean
+  palette*offset: number | null
+  palette*size: number | null
+  data*offset: number    // Offset in buffer
+  data*length: number    // Compressed data length
+  transparent*index: number | null
   interlaced: boolean
   delay: number          // Delay in 10ms units
   disposal: number       // Disposal method (0-3)
@@ -195,9 +195,9 @@ if (loopCount === null) {
 const reader = new Reader(buffer)
 const frame = reader.frameInfo(0)
 
-if (!frame.has_local_palette && frame.palette_offset !== null) {
+if (!frame.has*local*palette && frame.palette*offset !== null) {
   // Global palette is being used
-  const paletteSize = frame.palette_size || 256
+  const paletteSize = frame.palette*size || 256
   console.log(`Global palette with ${paletteSize} colors`)
 }
 ```
@@ -207,8 +207,8 @@ if (!frame.has_local_palette && frame.palette_offset !== null) {
 ```typescript
 for (let i = 0; i < reader.numFrames(); i++) {
   const frame = reader.frameInfo(i)
-  if (frame.has_local_palette) {
-    console.log(`Frame ${i} has local palette with ${frame.palette_size} colors`)
+  if (frame.has*local*palette) {
+    console.log(`Frame ${i} has local palette with ${frame.palette*size} colors`)
   }
 }
 ```
@@ -294,7 +294,7 @@ function getGifSummary(buffer: Buffer) {
     })(),
     hasTransparency: (() => {
       for (let i = 0; i < reader.numFrames(); i++) {
-        if (reader.frameInfo(i).transparent_index !== null) {
+        if (reader.frameInfo(i).transparent*index !== null) {
           return true
         }
       }

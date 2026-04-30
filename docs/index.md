@@ -29,3 +29,4 @@ features:
     icon: "🚀"
     details: "Automatically builds a binary for your project out of your CLI."
 ---
+
