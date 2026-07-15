@@ -26,8 +26,13 @@ export class Reader {
     const num_global_colors_pow2 = pf0 & 0x7
     const num_global_colors = 1 << (num_global_colors_pow2 + 1)
 
-    // eslint-disable-next-line ts/no-unused-expressions
-    buf[p++] // Pixel aspect ratio (unused?)
+    // The Logical Screen Descriptor has TWO trailer bytes after `pf0`:
+    //   bg_color_index (1) + pixel_aspect_ratio (1).
+    // Skipping only one used to silently land us into the middle of the
+    // global colour table — which made every decoded colour come back
+    // shifted by one byte. Fixed.
+    p++ // bg_color_index (unused — reader doesn't paint a backdrop)
+    p++ // pixel aspect ratio (unused)
 
     let global_palette_offset = null
     let global_palette_size = null
@@ -168,6 +173,12 @@ export class Reader {
           no_eof = false
           break
 
+        case 0x00:
+          // Many in-the-wild GIFs include stray 0x00 bytes between blocks.
+          // The spec doesn't allow them, but every popular decoder skips
+          // them silently — match that to stay compatible.
+          break
+
         default:
           throw new Error(`Unknown gif block: 0x${buf[p - 1].toString(16)}`)
       }
@@ -180,6 +191,14 @@ export class Reader {
 
   getLoopCount(): number | null {
     return this.loop_count
+  }
+
+  getWidth(): number {
+    return this.width
+  }
+
+  getHeight(): number {
+    return this.height
   }
 
   frameInfo(frame_num: number): Frame {

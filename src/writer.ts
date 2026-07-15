@@ -32,6 +32,16 @@ export class Writer {
       throw new Error('Invalid code/color length, must be power of 2 and 2 .. 256.')
     }
 
+    // Each entry encodes 24-bit RGB packed as `(r << 16) | (g << 8) | b`.
+    // Anything outside 0..0xFFFFFF would silently overflow when shifted —
+    // catch it here so the corruption shows up as an error not bad pixels.
+    for (let i = 0; i < num_colors; i++) {
+      const c = palette[i]
+      if (!Number.isInteger(c) || c < 0 || c > 0xFFFFFF) {
+        throw new Error(`Palette entry ${i} (${c}) is not a 24-bit RGB integer.`)
+      }
+    }
+
     return num_colors
   }
 
