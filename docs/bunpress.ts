@@ -1,12 +1,14 @@
 import type { BunPressConfig } from '@stacksjs/bunpress'
 
 const config: BunPressConfig = {
-  name: 'ts-gif',
+  title: 'ts-gif',
   description: 'A performant TypeScript implementation for reading, writing, and manipulating GIF images',
   url: 'https://ts-gif.netlify.app',
 
-  theme: {
-    primaryColor: '#7c3aed',
+  themeConfig: {
+    colors: {
+      primary: '#7c3aed',
+    },
   },
 
   sidebar: [
@@ -40,7 +42,7 @@ const config: BunPressConfig = {
     },
   ],
 
-  navbar: [
+  nav: [
     { text: 'Guide', link: '/guide/getting-started' },
     { text: 'GitHub', link: 'https://github.com/stacksjs/ts-gif' },
   ],
