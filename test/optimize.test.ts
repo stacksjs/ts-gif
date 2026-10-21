@@ -104,3 +104,25 @@ test('rejects oversized frame declarations before allocating their pixel buffers
   input.writeUInt16LE(65535, offset - 3)
   expect(() => reencode(input)).toThrow('64 megapixels')
 })
+
+test('does not truncate LZW output when dictionary codes grow to twelve bits', () => {
+  const indices = new Uint8Array(256 * 256)
+  let seed = 0x12345678
+  for (let i = 0; i < indices.length; i++) {
+    seed ^= seed << 13
+    seed ^= seed >>> 17
+    seed ^= seed << 5
+    indices[i] = seed & 255
+  }
+  const buffer = Buffer.alloc(1024 * 1024)
+  const writer = new Writer(buffer, 256, 256, { palette: Array.from({ length: 256 }, (_, i) => i * 0x010101) })
+  writer.addFrame(0, 0, 256, 256, indices)
+  writer.end()
+  const input = buffer.subarray(0, writer.getOutputBufferPosition())
+  const output = Buffer.from(reencode(input))
+  const pixels = Buffer.alloc(indices.length * 4)
+  new Reader(output).decodeAndBlitFrameRGBA(0, pixels)
+  const expected = Buffer.alloc(pixels.length)
+  for (let i = 0; i < indices.length; i++) expected.set([indices[i], indices[i], indices[i], 255], i * 4)
+  expect(pixels).toEqual(expected)
+})
