@@ -79,7 +79,19 @@ export function reencode(input: Uint8Array): Uint8Array {
     const numPixels = info.width * info.height
     const indices = new Uint8Array(numPixels)
 
+    if (numPixels > 64 * 1024 * 1024 || frames.reduce((total, frame) => total + frame.indices.length, 0) + numPixels > 64 * 1024 * 1024)
+      throw new Error('GIF exceeds 64 megapixels across frames')
     readerLZWOutputIndexStream(buf, info.data_offset, indices, numPixels)
+    if (info.interlaced) {
+      const source = indices.slice()
+      let row = 0
+      for (const [start, step] of [[0, 8], [4, 8], [2, 4], [1, 2]]) {
+        for (let y = start; y < info.height; y += step) {
+          indices.set(source.subarray(row * info.width, (row + 1) * info.width), y * info.width)
+          row++
+        }
+      }
+    }
 
     if (info.palette_offset === null) {
       // Palette-less frame is malformed for our purposes; passthrough.
@@ -96,15 +108,20 @@ export function reencode(input: Uint8Array): Uint8Array {
   }
 
   const loopCount = reader.getLoopCount()
+  const globalSize = (buf[10] & 0x80) ? 1 << ((buf[10] & 7) + 1) : 0
+  const originalPalette = globalSize ? readPalette(buf, 13, globalSize) : undefined
+  const background = buf[11]
+  if (buf[12] !== 0) return input // preserve non-square pixel aspect ratios
+  const backgroundColor = originalPalette?.[background]
 
   // ── Phase 2: try global-palette consolidation ──────────────────────────
   // If every frame's used colours together fit into 256, we can replace
   // every local colour table with one shared global one — saving up to
   // (numFrames - 1) × ≈768 bytes.
-  const globalAttempt = tryGlobalPalette(frames)
+  const globalAttempt = tryGlobalPalette(frames, width, height, loopCount, backgroundColor)
 
   // ── Phase 3: per-frame tightening fallback ─────────────────────────────
-  const localAttempt = tightenLocalPalettes(width, height, frames, loopCount)
+  const localAttempt = tightenLocalPalettes(width, height, frames, loopCount, originalPalette, background)
 
   // Pick whichever attempt is smaller. (Both are valid GIF89a outputs.)
   if (globalAttempt && globalAttempt.length <= localAttempt.length) {
@@ -151,6 +168,8 @@ function tightenLocalPalettes(
     usedSet: Set<number>
   }>,
   loopCount: number | null,
+  originalPalette?: number[],
+  background = 0,
 ): Uint8Array {
   // Worst-case output budget: original-ish per frame plus headroom for
   // headers + LZW overhead. We slice to the actual position at the end.
@@ -158,7 +177,9 @@ function tightenLocalPalettes(
   const out = Buffer.alloc(budget)
 
   const writer = new Writer(out, width, height, {
-    loop: frames.length > 1 ? (loopCount ?? 0) : null,
+    loop: loopCount ?? undefined,
+    palette: originalPalette,
+    ...(originalPalette && background ? { background } : {}),
   })
 
   for (const f of frames) {
@@ -206,12 +227,17 @@ function tryGlobalPalette(
     palette: number[]
     usedSet: Set<number>
   }>,
+  canvasWidth: number,
+  canvasHeight: number,
+  loopCount: number | null,
+  backgroundColor?: number,
 ): Uint8Array | null {
   // Collect every (rgb, isTransparent) combination across all frames.
   // We treat transparency as a logical channel — a frame that wants to be
   // transparent at index i still needs a slot for i in the global palette,
   // but the GCE's transparent_index can repoint to that slot.
   const colorSet = new Set<number>()
+  if (backgroundColor !== undefined) colorSet.add(backgroundColor)
   for (const f of frames) {
     for (const idx of f.usedSet) {
       // The original transparent index may point at a colour we don't
@@ -243,27 +269,13 @@ function tryGlobalPalette(
     colorToGlobal.set(globalPalette[i], i)
   }
 
-  const totalWidth = frames[0]
-  const _w = totalWidth // (unused — the global LSD width is taken from the writer ctor below)
-  void _w
-
-  // Determine canvas size from the original (we still need it for the writer).
-  // We thread it in via `frames[0].info` is wrong (it's the frame, not canvas).
-  // The caller of tryGlobalPalette knows the canvas — but to keep the surface
-  // small we recover it from the union of frame extents (works for valid GIFs).
-  let canvasWidth = 0
-  let canvasHeight = 0
-  for (const f of frames) {
-    canvasWidth = Math.max(canvasWidth, f.info.x + f.info.width)
-    canvasHeight = Math.max(canvasHeight, f.info.y + f.info.height)
-  }
-
   const budget = computeOutputBudget(canvasWidth, canvasHeight, frames) + padded.length * 3
   const out = Buffer.alloc(budget)
 
   const writer = new Writer(out, canvasWidth, canvasHeight, {
     palette: padded,
-    loop: frames.length > 1 ? 0 : null,
+    loop: loopCount ?? undefined,
+    ...(backgroundColor !== undefined && colorToGlobal.get(backgroundColor) ? { background: colorToGlobal.get(backgroundColor) } : {}),
   })
 
   for (const f of frames) {
@@ -310,5 +322,5 @@ function computeOutputBudget(
   for (const f of frames) {
     total += 1024 + Math.ceil(f.indices.length * 9 / 8) + Math.ceil(f.indices.length / 254)
   }
-  return Math.max(total, width * height * 2 + 4096)
+  return total
 }

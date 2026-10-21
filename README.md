@@ -107,3 +107,10 @@ Made with 💙
 <!-- Badges -->
 
 <!-- [codecov-src]: https://img.shields.io/codecov/c/gh/stacksjs/ts-gif/main?style=flat-square
+
+### Lossless GIF optimization
+
+`optimize(bytes)` tightens palettes while retaining canvas dimensions, loop
+counts, frame delays, disposal and background colors. Interlaced frames are
+reordered before encoding. `reencode(bytes)` throws on decode errors; `optimize`
+returns the original on failure or when no smaller result is available.
