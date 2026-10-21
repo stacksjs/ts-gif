@@ -173,7 +173,7 @@ function tightenLocalPalettes(
 ): Uint8Array {
   // Worst-case output budget: original-ish per frame plus headroom for
   // headers + LZW overhead. We slice to the actual position at the end.
-  const budget = computeOutputBudget(width, height, frames)
+  const budget = computeOutputBudget(frames)
   const out = Buffer.alloc(budget)
 
   const writer = new Writer(out, width, height, {
@@ -269,7 +269,7 @@ function tryGlobalPalette(
     colorToGlobal.set(globalPalette[i], i)
   }
 
-  const budget = computeOutputBudget(canvasWidth, canvasHeight, frames) + padded.length * 3
+  const budget = computeOutputBudget(frames) + padded.length * 3
   const out = Buffer.alloc(budget)
 
   const writer = new Writer(out, canvasWidth, canvasHeight, {
@@ -311,8 +311,6 @@ function tryGlobalPalette(
 }
 
 function computeOutputBudget(
-  width: number,
-  height: number,
   frames: Array<{ indices: Uint8Array }>,
 ): number {
   // Upper bound: header + global palette + per-frame (image descriptor +
