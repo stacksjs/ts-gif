@@ -21,9 +21,8 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun test
       - run: bun run build
+      # Publishing is authenticated by the npm trusted publisher for release.yml.
       - run: pantry publish --npm --access public
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - uses: stacksjs/action-releaser@v1.2.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
