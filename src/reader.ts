@@ -7,6 +7,7 @@ export class Reader {
   private height: number
   private loop_count: number | null = null
   private buffer: Buffer
+  private unmodeledExtensions = false
 
   constructor(buf: Buffer) {
     this.buffer = buf
@@ -54,10 +55,10 @@ export class Reader {
           switch (buf[p++]) {
             case 0xFF: // Application specific block
               // Try if it's a Netscape block (with animation loop counter).
-              if (buf[p] !== 0x0B // 21 FF already read, check block size.
+              if (buf[p] === 0x0B // 21 FF already read, check block size.
                 // NETSCAPE2.0
                 // eslint-disable-next-line style/no-mixed-operators
-                || buf[p + 1] === 0x4E && buf[p + 2] === 0x45 && buf[p + 3] === 0x54
+                && buf[p + 1] === 0x4E && buf[p + 2] === 0x45 && buf[p + 3] === 0x54
                 && buf[p + 4] === 0x53 && buf[p + 5] === 0x43 && buf[p + 6] === 0x41
                 && buf[p + 7] === 0x50 && buf[p + 8] === 0x45 && buf[p + 9] === 0x32
                 && buf[p + 10] === 0x2E && buf[p + 11] === 0x30
@@ -68,8 +69,9 @@ export class Reader {
                 this.loop_count = buf[p++] | buf[p++] << 8
                 p++ // Skip terminator.
               }
-              else { // We don't know what it is, just try to get past it.
-                p += 12
+              else { // Preserve application metadata the re-encoder does not model.
+                this.unmodeledExtensions = true
+                p += 1 + buf[p]
                 while (true) { // Seek through subblocks.
                   const block_size = buf[p++]
                   // Bad block size (ex: undefined from an out of bounds read).
@@ -100,7 +102,12 @@ export class Reader {
             // Plain Text Extension could be present and we just want to be able
             // to parse past it.  It follows the block structure of the comment
             // extension enough to reuse the path to skip through the blocks.
-            case 0x01: // Plain Text Extension (fallthrough to Comment Extension)
+            case 0x01: // Plain Text Extension is itself a graphic block.
+              this.unmodeledExtensions = true
+              delay = 0
+              transparent_index = null
+              disposal = 0
+              // fall through
             case 0xFE: // Comment Extension.
               while (true) { // Seek through subblocks.
                 const block_size = buf[p++]
@@ -129,7 +136,6 @@ export class Reader {
           const interlace_flag = pf2 >> 6 & 1
           const num_local_colors_pow2 = pf2 & 0x7
           const num_local_colors = 1 << (num_local_colors_pow2 + 1)
-          const data_offset = p
 
           let palette_offset = global_palette_offset
           let palette_size = global_palette_size
@@ -141,6 +147,7 @@ export class Reader {
             p += num_local_colors * 3 // Seek past palette.
           }
 
+          const data_offset = p
           p++ // codesize
           while (true) {
             const block_size = buf[p++]
@@ -166,6 +173,9 @@ export class Reader {
             delay,
             disposal,
           })
+          delay = 0
+          transparent_index = null
+          disposal = 0
           break
         }
 
@@ -183,6 +193,11 @@ export class Reader {
           throw new Error(`Unknown gif block: 0x${buf[p - 1].toString(16)}`)
       }
     }
+  }
+
+  /** Whether re-encoding would discard unmodeled graphic or application data. */
+  hasUnmodeledExtensions(): boolean {
+    return this.unmodeledExtensions
   }
 
   numFrames(): number {

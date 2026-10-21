@@ -55,3 +55,52 @@ test('deinterlaces source rows before emitting a non-interlaced frame', () => {
   result.decodeAndBlitFrameRGBA(0, b)
   expect(b).toEqual(a)
 })
+
+test('decodes and optimizes frame-local palettes with the original colors', () => {
+  const buffer = Buffer.alloc(8192)
+  const writer = new Writer(buffer, 2, 1, { palette: [0, 0xFFFFFF] })
+  writer.addFrame(0, 0, 2, 1, new Uint8Array([0, 1]), { palette: [0xFF0000, 0x00FF00] })
+  writer.end()
+  const input = buffer.subarray(0, writer.getOutputBufferPosition())
+  for (const stream of [input, Buffer.from(reencode(input))]) {
+    const pixels = Buffer.alloc(8)
+    new Reader(stream).decodeAndBlitFrameRGBA(0, pixels)
+    expect([...pixels]).toEqual([255, 0, 0, 255, 0, 255, 0, 255])
+  }
+})
+
+test('graphic controls apply to one frame only', () => {
+  const buffer = Buffer.alloc(8192)
+  const writer = new Writer(buffer, 2, 1, { palette: [0, 0xFFFFFF] })
+  writer.addFrame(0, 0, 2, 1, new Uint8Array([0, 1]), { delay: 9, disposal: 2, transparent: 0 })
+  writer.addFrame(0, 0, 2, 1, new Uint8Array([0, 1]))
+  writer.end()
+  const input = buffer.subarray(0, writer.getOutputBufferPosition())
+  for (const stream of [input, Buffer.from(reencode(input))]) {
+    const frame = new Reader(stream).frameInfo(1)
+    expect(frame.delay).toBe(0)
+    expect(frame.disposal).toBe(0)
+    expect(frame.transparent_index).toBe(null)
+  }
+})
+
+test('preserves unmodeled application profiles and plain text graphic blocks', () => {
+  const input = fixture()
+  const extensions = [
+    Buffer.concat([Buffer.from([0x21, 0xFF, 11]), Buffer.from('ICCRGBG1012'), Buffer.from([3, 1, 2, 3, 0])]),
+    Buffer.concat([Buffer.from([0x21, 0x01, 12]), Buffer.alloc(12), Buffer.from([1, 65, 0])]),
+  ]
+  const start = 13 + 256 * 3
+  for (const extension of extensions) {
+    const stream = Buffer.concat([input.subarray(0, start), extension, input.subarray(start)])
+    expect(reencode(stream)).toEqual(stream)
+  }
+})
+
+test('rejects oversized frame declarations before allocating their pixel buffers', () => {
+  const input = Buffer.from(fixture())
+  const offset = new Reader(input).frameInfo(0).data_offset
+  input.writeUInt16LE(65535, offset - 5)
+  input.writeUInt16LE(65535, offset - 3)
+  expect(() => reencode(input)).toThrow('64 megapixels')
+})

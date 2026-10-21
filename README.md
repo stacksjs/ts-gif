@@ -114,3 +114,5 @@ Made with 💙
 counts, frame delays, disposal and background colors. Interlaced frames are
 reordered before encoding. `reencode(bytes)` throws on decode errors; `optimize`
 returns the original on failure or when no smaller result is available.
+
+The lossless optimizer retains frame-local colors and scopes graphic controls to their following frame. GIFs with application profiles, plain-text graphic blocks, or a non-square pixel aspect ratio keep their original stream. Frame size limits are checked before pixel allocation.

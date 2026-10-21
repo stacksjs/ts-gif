@@ -50,7 +50,8 @@ export function optimize(input: Uint8Array, options: OptimizeOptions = {}): Uint
 
 /**
  * Force re-encoding with palette tightening + (when possible) global palette
- * consolidation. Always returns a freshly built buffer — the caller is
+ * consolidation. Unmodeled graphic/application extensions are preserved by
+ * retaining the original stream. Otherwise returns a new buffer; the caller is
  * responsible for picking the smaller of input/output via `optimize()`.
  */
 export function reencode(input: Uint8Array): Uint8Array {
@@ -60,7 +61,7 @@ export function reencode(input: Uint8Array): Uint8Array {
   const height = reader.getHeight()
   const numFrames = reader.numFrames()
 
-  if (numFrames === 0) return input
+  if (numFrames === 0 || reader.hasUnmodeledExtensions() || buf[12] !== 0) return input
 
   // ── Phase 1 ────────────────────────────────────────────────────────────
   // Decode each frame's raw index stream + extract its source palette.
@@ -74,13 +75,14 @@ export function reencode(input: Uint8Array): Uint8Array {
   }
 
   const frames: DecodedFrame[] = []
+  let totalPixels = 0
   for (let i = 0; i < numFrames; i++) {
     const info = reader.frameInfo(i)
     const numPixels = info.width * info.height
-    const indices = new Uint8Array(numPixels)
-
-    if (numPixels > 64 * 1024 * 1024 || frames.reduce((total, frame) => total + frame.indices.length, 0) + numPixels > 64 * 1024 * 1024)
+    totalPixels += numPixels
+    if (totalPixels > 64 * 1024 * 1024)
       throw new Error('GIF exceeds 64 megapixels across frames')
+    const indices = new Uint8Array(numPixels)
     readerLZWOutputIndexStream(buf, info.data_offset, indices, numPixels)
     if (info.interlaced) {
       const source = indices.slice()
@@ -101,7 +103,10 @@ export function reencode(input: Uint8Array): Uint8Array {
     const palette = readPalette(buf, info.palette_offset, info.palette_size ?? 0)
 
     const usedSet = new Set<number>()
-    for (let p = 0; p < indices.length; p++) usedSet.add(indices[p])
+    for (let p = 0; p < indices.length; p++) {
+      if (indices[p] >= palette.length) throw new Error('GIF pixel index exceeds its palette')
+      usedSet.add(indices[p])
+    }
     if (info.transparent_index !== null) usedSet.add(info.transparent_index)
 
     frames.push({ info, indices, palette, usedSet })
@@ -111,7 +116,6 @@ export function reencode(input: Uint8Array): Uint8Array {
   const globalSize = (buf[10] & 0x80) ? 1 << ((buf[10] & 7) + 1) : 0
   const originalPalette = globalSize ? readPalette(buf, 13, globalSize) : undefined
   const background = buf[11]
-  if (buf[12] !== 0) return input // preserve non-square pixel aspect ratios
   const backgroundColor = originalPalette?.[background]
 
   // ── Phase 2: try global-palette consolidation ──────────────────────────
@@ -314,11 +318,11 @@ function computeOutputBudget(
   frames: Array<{ indices: Uint8Array }>,
 ): number {
   // Upper bound: header + global palette + per-frame (image descriptor +
-  // local palette + LZW size, which is at worst input size + 1/63 overhead
-  // for sub-block lengths). Add slack for GCEs, Netscape loop block, etc.
+  // local palette + up to 12-bit LZW codes and sub-block lengths). Two
+  // bytes per index leaves room for clear codes too. Add slack for headers.
   let total = 1024 // header + LSD + global palette + Netscape extension
   for (const f of frames) {
-    total += 1024 + Math.ceil(f.indices.length * 9 / 8) + Math.ceil(f.indices.length / 254)
+    total += 1024 + f.indices.length * 2 + Math.ceil(f.indices.length / 127)
   }
   return total
 }
