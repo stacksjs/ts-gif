@@ -10,7 +10,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: pantry-pm/pantry/packages/action@d160044a6fe4ad7e8463828f80dfbc55bcdc07d9
