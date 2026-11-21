@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "ts-gif",
-      "dependencies": {
-        "data-uri-to-buffer": "^6.0.2",
-      },
       "devDependencies": {
         "@stacksjs/bunpress": "^0.2.11",
         "@types/cwise-compiler": "^1.1.6",

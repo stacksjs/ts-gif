@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test'
 import { Buffer } from 'node:buffer'
 import { Reader, Writer, reencode } from '../src'
 
-function fixture(loop?: number): Buffer {
+function fixture(loop?: number): Buffer<ArrayBuffer> {
   const buffer = Buffer.alloc(8192)
   const writer = new Writer(buffer, 40, 30, { palette: Array.from({ length: 256 }, (_, i) => i * 0x010101), loop, background: 2 })
   writer.addFrame(5, 4, 2, 2, new Uint8Array([0,1,1,0]), { delay: 8, disposal: 2 })

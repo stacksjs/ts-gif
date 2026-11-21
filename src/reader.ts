@@ -52,7 +52,8 @@ export class Reader {
     while (no_eof && p < buf.length) {
       switch (buf[p++]) {
         case 0x21: // Graphics Control Extension Block
-          switch (buf[p++]) {
+          const extension = buf[p++]
+          switch (extension) {
             case 0xFF: // Application specific block
               // Try if it's a Netscape block (with animation loop counter).
               if (buf[p] === 0x0B // 21 FF already read, check block size.
@@ -99,16 +100,15 @@ export class Reader {
               break
             }
 
-            // Plain Text Extension could be present and we just want to be able
-            // to parse past it.  It follows the block structure of the comment
-            // extension enough to reuse the path to skip through the blocks.
-            case 0x01: // Plain Text Extension is itself a graphic block.
-              this.unmodeledExtensions = true
-              delay = 0
-              transparent_index = null
-              disposal = 0
-              // fall through
+            case 0x01: // Plain Text Extension.
             case 0xFE: // Comment Extension.
+              if (extension === 0x01) {
+                // Plain text is a graphic block, so it consumes its own control extension.
+                this.unmodeledExtensions = true
+                delay = 0
+                transparent_index = null
+                disposal = 0
+              }
               while (true) { // Seek through subblocks.
                 const block_size = buf[p++]
                 if (!(block_size >= 0))
